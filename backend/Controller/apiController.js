@@ -268,14 +268,31 @@ class ApiController {
 
 
     //Assinar em lote
-    async assinarLote() {
-
+    async assinarLote(user_api_token, signer_tokens) {
+        try {
+            const assinarLote = await api.post('/sign', {
+                user_token: user_api_token,
+                signer_tokens: signer_tokens
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${bearer_token}`
+                }
+            })
+            return assinarLote
+        } catch (error) {
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
+        }
     }
 
 
     //Coletar histórico de atividade do documento
-    async getHistoricoDocumento() {
-
+    async getHistoricoDocumento(token_documento, download_pdf) {
+        try {
+            const historico = await api.get(`/docs/signer-log/${token_documento}?download_pdf=${download_pdf}`)
+            return historico
+        } catch (error) {
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
+        }
     }
 }
 
