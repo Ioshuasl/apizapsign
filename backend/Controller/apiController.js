@@ -15,15 +15,6 @@ const api = axios.create({
 })
 
 class ApiController {
-    //funcao de teste de uma api externa qualquer
-    async getUserGithub(username) {
-        try {
-            const resposta = await axios.get(`https://api.github.com/users/${username}`)
-            return resposta.data
-        } catch (error) {
-            return error
-        }
-    }
 
     //Criar documento PDF
     async createDocPdf(name, url_pdf, signers) {
