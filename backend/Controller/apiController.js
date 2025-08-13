@@ -3,14 +3,14 @@ import axios from "axios";
 //URL principal da API
 // https://sandbox.api.zapsign.com.br/api/v1/
 //token de autenticação
-const bearer_token = 'db1d4952-1801-43b9-a006-9e4957ab9bb888c35e7d-e582-4a06-9095-089c0e9fa6f0'
 // conta 1(já está cheio)
 // e5e0d3cc-aa83-495c-9045-b486bcbe98c9bf48203a-7686-4f27-93dd-2734fc08cb3c
 //conta 2(não está cheio ainda)
 // db1d4952-1801-43b9-a006-9e4957ab9bb888c35e7d-e582-4a06-9095-089c0e9fa6f0
 
+const bearer_token = 'db1d4952-1801-43b9-a006-9e4957ab9bb888c35e7d-e582-4a06-9095-089c0e9fa6f0'
 
-const api = axios.create({
+export const api = axios.create({
     baseURL: 'https://sandbox.api.zapsign.com.br/api/v1'
 })
 
@@ -18,7 +18,7 @@ class ApiController {
 
     //Criar documento PDF
     async createDocPdf(name, url_pdf, signers) {
- 
+
         const datapost = {
             name: name,
             url_pdf: url_pdf,
@@ -38,9 +38,9 @@ class ApiController {
             allow_refuse_signature: false,
             disable_signers_get_original_file: false
         }
-        
+
         console.log(datapost)
-        
+
         try {
             const documento = await api.post('/docs', datapost, {
                 headers: {
@@ -50,7 +50,7 @@ class ApiController {
             })
             return documento.data
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
@@ -84,7 +84,7 @@ class ApiController {
             console.log(documento)
             return documento.data
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
@@ -99,21 +99,21 @@ class ApiController {
             })
             return documento.data
         } catch (error) {
-            return error
+            throw new Error(`Erro: ${error.response.data.detail}; Status:${error.response.status}`);
         }
     }
 
     //Listar documentos
-    async getDocumentos() {
+    async getDocumentos(page, bearer_token) {
         try {
-            const documentos = await api.get('/docs', {
+            const documentos = await api.get(`/docs/?page=${page}`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
             return documentos.data
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
@@ -127,7 +127,7 @@ class ApiController {
             })
             return documento
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
@@ -138,10 +138,32 @@ class ApiController {
 
 
     //Criar modelo de documento
-    async createModelo() {
-        //upload do modelo de documento no amazons3
-
-        //criação do modelo de documento na zapsign
+    async createModelo(name, url_docx, signers) {
+        try {
+            const documento = await axi.post('/templates/create', {
+                name: name,
+                url_docx: url_docx,
+                lang: 'pt-br',
+                observers: ["test@observer.com"],
+                first_signer: {
+                    blank_email: false,
+                    blank_phone: false,
+                    auth_mode: "assinaturaTela",
+                    require_selfie_photo: false,
+                    require_document_photo: false,
+                    selfie_validation_type: "",
+                    qualification: Witness
+                }
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${bearer_token}`
+                }
+            })
+            console.log(documento)
+            return documento.data
+        } catch (error) {
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
+        }
     }
 
 
@@ -155,22 +177,22 @@ class ApiController {
             })
             return modelo
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
 
     //Listar modelos
-    async getModelos() {
+    async getModelos(page) {
         try {
-            const modelos = await api.get('/templates', {
+            const modelos = await api.get(`/templates/?page=${page}`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
             return modelos
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
@@ -182,14 +204,36 @@ class ApiController {
 
 
     //Adicionar signatário
-    async addSignatario() {
-
+    async addSignatario(token_documento, signer_name) {
+        try {
+            const signatario = await api.post(`/docs/${token_documento}/add-signer`, {
+                name: signer_name
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${bearer_token}`
+                }
+            })
+            return signatario
+        } catch (error) {
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
+        }
     }
 
 
     //Atualizar signatário
-    async atualizarSignatario() {
-
+    async atualizarSignatario(token_signatario, signer_name) {
+        try {
+            const signatario = await api.post(`/signers/${token_signatario}`, {
+                name: signer_name
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${bearer_token}`
+                }
+            })
+            return signatario
+        } catch (error) {
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
+        }
     }
 
 
@@ -203,7 +247,7 @@ class ApiController {
             })
             return signatario
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
@@ -218,7 +262,7 @@ class ApiController {
             })
             return signatario
         } catch (error) {
-            return error
+            return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
 
