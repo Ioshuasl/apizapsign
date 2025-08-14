@@ -1,51 +1,8 @@
 import express from "express"
-import apiController from "../Controller/apiController.js"
-import aws from 'aws-sdk'
-import path from 'path'
-import fs from 'fs'
-import os from 'os'
-import multer from 'multer'
-import buffer from 'buffer'
-import dotenv from 'dotenv'
+import apiController from "../Controller/apiController"
 
-const bearer_token = 'db1d4952-1801-43b9-a006-9e4957ab9bb888c35e7d-e582-4a06-9095-089c0e9fa6f0'
-
-dotenv.config()
-
-// configuracao do aws
-aws.config.update({
-    accessKeyId: process.env.accessKeyId,
-    secretAccessKey: process.env.secretAccessKey,
-    region: process.env.region
-})
-
-//instancia aws s3
-const s3 = new aws.S3();
-
-//configuracao multer para armazenar arquivos temporariamente
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 
 const routes = express.Router()
-
-// Rota para upload de arquivos
-// requisição post localhost:PORTA/upload seleciona o body form-data key voce vai digitar file e deois selecionar sua imagem
-routes.post('/upload', upload.single('file'), (req, res) => {
-    const fileContent = req.file.buffer; // O conteúdo do arquivo
-    const params = {
-        Bucket: process.env.bucket,
-        Key: req.file.originalname, // Nome do arquivo no S3
-        Body: fileContent,
-        ContentType: req.file.mimetype // Tipo de conteúdo do arquivo
-    };
-
-    s3.upload(params, (err, data) => {
-        if (err) {
-            return res.status(500).json('Erro ao fazer upload: ' + err);
-        }
-        res.json(`Arquivo enviado com sucesso. URL: ${data.Location}`);
-    });
-});
 
 //Criar documento
 routes.post('/apizapsign/documentopdf', async (req, res) => {
@@ -69,12 +26,11 @@ routes.post('/apizapsign/documentopdf', async (req, res) => {
 //Detalhar documento
 routes.get('/apizapsign/documento/:token_documento', async (req, res) => {
     const { token_documento } = req.params
+    console.log(token_documento)
     try {
         const documento = await apiController.getDocumento(token_documento)
-        console.log("error status 200")
         return res.status(200).json(documento)
     } catch (error) {
-        console.log("error status 400")
         const errorMessage = error.message;
 
         // Exemplo: extrair o status do erro da mensagem para um tratamento mais específico
@@ -88,9 +44,8 @@ routes.get('/apizapsign/documento/:token_documento', async (req, res) => {
 
 //Listar documentos
 routes.get('/apizapsign/documento/', async (req, res) => {
-    const page = req.query.page
     try {
-        const documentos = await apiController.getDocumentos(page, bearer_token)
+        const documentos = await apiController.getDocumentos()
         return res.json(documentos)
     } catch (error) {
         const errorMessage = error.message;
@@ -107,6 +62,7 @@ routes.get('/apizapsign/documento/', async (req, res) => {
 //Deletar documento
 routes.delete('/apizapsign/documento/:token_documento', async (req, res) => {
     const { token_documento } = req.params
+    console.log(token_documento)
     try {
         const documento = await apiController.deleteDocumento(token_documento)
         return res.json(documento)

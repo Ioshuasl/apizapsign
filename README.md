@@ -73,7 +73,10 @@ git clone <URL_DO_REPOSITORIO>
 cd backend
 
 # 3. Instale as dependências
-npm install
+npm i
 
 # 4. Inicie o servidor
 node api.js
+
+# 5. Instalar o Docker e rodar o container
+docker run --name apizapsign -e POSTGRES_PASSW:ORD=1234 -d -p 5432:5432 postgres

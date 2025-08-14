@@ -1,20 +1,8 @@
-import axios from "axios";
+import { apiZapsign } from "../api/apiZapsign"
 
-//URL principal da API
-// https://sandbox.api.zapsign.com.br/api/v1/
-//token de autenticação
-// conta 1(já está cheio)
-// e5e0d3cc-aa83-495c-9045-b486bcbe98c9bf48203a-7686-4f27-93dd-2734fc08cb3c
-//conta 2(não está cheio ainda)
-// db1d4952-1801-43b9-a006-9e4957ab9bb888c35e7d-e582-4a06-9095-089c0e9fa6f0
+const bearer_token = '985d7b07-4e55-4b8d-a02d-54f7618c258e3980ebdb-df00-4500-bcc2-6cfb94359da2'
 
-const bearer_token = 'db1d4952-1801-43b9-a006-9e4957ab9bb888c35e7d-e582-4a06-9095-089c0e9fa6f0'
-
-export const api = axios.create({
-    baseURL: 'https://sandbox.api.zapsign.com.br/api/v1'
-})
-
-class ApiController {
+class apiZapsignController {
 
     //Criar documento PDF
     async createDocPdf(name, url_pdf, signers) {
@@ -42,7 +30,7 @@ class ApiController {
         console.log(datapost)
 
         try {
-            const documento = await api.post('/docs', datapost, {
+            const documento = await apiZapsign.post('/docs', datapost, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`,
                     'Content-Type': 'application/json'
@@ -92,7 +80,7 @@ class ApiController {
     //Detalhar documento
     async getDocumento(token_documento) {
         try {
-            const documento = await api.get(`/docs/${token_documento}`, {
+            const documento = await apiZapsign.get(`/docs/${token_documento}`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
@@ -104,9 +92,9 @@ class ApiController {
     }
 
     //Listar documentos
-    async getDocumentos(page, bearer_token) {
+    async getDocumentos() {
         try {
-            const documentos = await api.get(`/docs/?page=${page}`, {
+            const documentos = await apiZapsign.get(`/docs`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
@@ -119,14 +107,16 @@ class ApiController {
 
     //Deletar documento
     async deleteDocumento(token_documento) {
+        console.log(token_documento)
         try {
-            const documento = await api.delete(`/docs/${token_documento}`, {
+            const documento = await apiZapsign.delete(`/docs/${token_documento}`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return documento
+            return documento.data
         } catch (error) {
+            console.log(error)
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
     }
@@ -170,12 +160,12 @@ class ApiController {
     //Detalhar modelo
     async getModelo(token_modelo) {
         try {
-            const modelo = await api.get(`/templates/${token_modelo}`, {
+            const modelo = await apiZapsign.get(`/templates/${token_modelo}`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return modelo
+            return modelo.data
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
@@ -183,14 +173,14 @@ class ApiController {
 
 
     //Listar modelos
-    async getModelos(page) {
+    async getModelos() {
         try {
-            const modelos = await api.get(`/templates/?page=${page}`, {
+            const modelos = await apiZapsign.get(`/templates`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return modelos
+            return modelos.data
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
@@ -204,16 +194,16 @@ class ApiController {
 
 
     //Adicionar signatário
-    async addSignatario(token_documento, signer_name) {
+    async addSigner(token_documento, signer_name) {
         try {
-            const signatario = await api.post(`/docs/${token_documento}/add-signer`, {
+            const signer = await apiZapsign.post(`/docs/${token_documento}/add-signer`, {
                 name: signer_name
             }, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return signatario
+            return signer.data
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
@@ -221,16 +211,16 @@ class ApiController {
 
 
     //Atualizar signatário
-    async atualizarSignatario(token_signatario, signer_name) {
+    async atualizarSigner(token_signer, signer_name) {
         try {
-            const signatario = await api.post(`/signers/${token_signatario}`, {
+            const signer = await apiZapsign.post(`/signers/${token_signer}`, {
                 name: signer_name
             }, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return signatario
+            return signer.data
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
@@ -238,14 +228,14 @@ class ApiController {
 
 
     //Detalhar signatário
-    async getSignatario(token_signatario) {
+    async getSigner(token_signer) {
         try {
-            const signatario = await api.get(`/signer/${token_signatario}`, {
+            const signer = await apiZapsign.get(`/signer/${token_signer}`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return signatario
+            return signer.data
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
@@ -253,14 +243,14 @@ class ApiController {
 
 
     //Deletar signatário
-    async deleteSignatario(token_signatario) {
+    async deleteSigner(token_signer) {
         try {
-            const signatario = await api.delete(`/signer/${token_signatario}/remove`, {
+            const signer = await apiZapsign.delete(`/signer/${token_signer}/remove`, {
                 headers: {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return signatario
+            return signer.data
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
@@ -270,7 +260,7 @@ class ApiController {
     //Assinar em lote
     async assinarLote(user_api_token, signer_tokens) {
         try {
-            const assinarLote = await api.post('/sign', {
+            const assinarLote = await apiZapsign.post('/sign', {
                 user_token: user_api_token,
                 signer_tokens: signer_tokens
             }, {
@@ -278,7 +268,7 @@ class ApiController {
                     'Authorization': `Bearer ${bearer_token}`
                 }
             })
-            return assinarLote
+            return assinarLote.data
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
         }
@@ -288,7 +278,7 @@ class ApiController {
     //Coletar histórico de atividade do documento
     async getHistoricoDocumento(token_documento, download_pdf) {
         try {
-            const historico = await api.get(`/docs/signer-log/${token_documento}?download_pdf=${download_pdf}`)
+            const historico = await apiZapsign.get(`/docs/signer-log/${token_documento}?download_pdf=${download_pdf}`)
             return historico
         } catch (error) {
             return { message: `Erro: ${error.response.data.detail}; Status:${error.response.status}` }
@@ -296,4 +286,4 @@ class ApiController {
     }
 }
 
-export default new ApiController()
+export default new apiZapsignController()

@@ -5,7 +5,6 @@ import sequelize from "./Config/database.js";
 const api = express()
 const PORT = 5172
 
-/*
 try {
     await sequelize.authenticate(); //verifica a conexão com o banco de dados
     console.log("Conexão com o banco de dados estabelecida com sucesso!");
@@ -14,7 +13,6 @@ try {
 } catch (error) {
     console.error("Falha ao conectar com o banco de dados:", error);
 }
-*/
 
 api.use(express.json())
 api.use(routes)

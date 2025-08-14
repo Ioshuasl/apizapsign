@@ -2,9 +2,9 @@ import { api } from "./Controller/apiController.js"
 
 async function getDocumentos(page) {
     try {
-        const documentos = await api.get(`/docs/?page=${page}`, {
+        const documentos = await api.get(`/docs`, {
             headers: {
-                'Authorization': `Bearer 'db1d4952-1801-43b9-a006-9e4957ab9bb888c35e7d-e582-4a06-9095-089c0e9fa6f0'`
+                'Authorization': `Bearer 985d7b07-4e55-4b8d-a02d-54f7618c258e3980ebdb-df00-4500-bcc2-6cfb94359da2`
             }
         })
         console.log(documentos)
